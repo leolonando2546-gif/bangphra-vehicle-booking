@@ -224,7 +224,7 @@ export default function App() {
   // --- หน้าจอ Login ---
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center" style={{ backgroundImage: 'url("/logo2.JPG")' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center" style={{ backgroundImage: 'url("/logo2.jpg")' }}>
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-10 z-10 relative text-center border-4 border-blue-700">
           <img src="/logo.png" alt="Logo" className="h-24 mx-auto mb-4" />
