@@ -227,9 +227,9 @@ export default function App() {
       <div className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center" style={{ backgroundImage: 'url("/logo2.jpg")' }}>
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-10 z-10 relative text-center border-4 border-blue-700">
-          <img src="/logo.png" alt="Logo" className="h-24 mx-auto mb-4" />
+          <img src="/555.jpg" alt="Logo" className="h-24 mx-auto mb-4" />
           <h1 className="text-3xl font-black text-black leading-tight">ระบบจองรถออนไลน์</h1>
-          <p className="text-lg text-black font-bold mb-8 italic">เทศบาลเมืองบางพระ</p>
+          <p className="text-lg text-black font-bold mb-8 italic">หน่วยงาน</p>
           <button 
             onClick={handleLogin}
             className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 p-4 rounded-xl font-black text-black shadow-lg hover:bg-gray-50 transition transform hover:scale-105 active:scale-95"
