@@ -13,7 +13,23 @@ export default function App() {
   const [usersList, setUsersList] = useState([]); // เก็บรายชื่อผู้ใช้ทั้งหมด
   const [adminTab, setAdminTab] = useState('bookings');
   
-  const [showSchedule, setShowSchedule] = useState(false); // State สำหรับสลับไปหน้าตารางคิวรถ
+  // State สำหรับจัดการปฏิทินรายเดือน
+  const [currentCalendarMonth, setCurrentCalendarMonth] = useState(new Date());
+
+  // ชื่อเดือนภาษาไทย
+  const thaiMonths = [
+    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+  ];
+
+  // ฟังก์ชันคำนวณวันในเดือน
+  const year = currentCalendarMonth.getFullYear();
+  const month = currentCalendarMonth.getMonth();
+  const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = วันอาทิตย์
+  const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const prevMonth = () => setCurrentCalendarMonth(new Date(year, month - 1, 1));
+  const nextMonth = () => setCurrentCalendarMonth(new Date(year, month + 1, 1));
 
   const [mileageRecord, setMileageRecord] = useState({ 
     bookingId: '', vehicleId: '', startMile: '', endMile: '', fuelCost: '' 
@@ -258,41 +274,115 @@ export default function App() {
         </div>
       </nav>
 
-      {/* --- ส่วนแสดงตารางคิวรถรายเดือน (แสดงเมื่อกดปุ่ม "ดูตารางคิวรถ") --- */}
+      {/* --- ส่วนแสดงปฏิทินคิวรถรายเดือน --- */}
       {showSchedule ? (
-        <div className="max-w-6xl mx-auto p-4 md:p-8 animate-fadeIn">
-          <div className="bg-white p-8 rounded-3xl shadow-2xl border-4 border-blue-100">
-            <h2 className="text-3xl font-black mb-6 text-black border-b pb-4 flex items-center gap-3">
-              📅 ตารางการใช้รถประจำเดือน
-            </h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-blue-50 border-b-2 border-blue-200 text-black uppercase text-sm font-black">
-                  <tr>
-                    <th className="p-4">วันที่</th>
-                    <th className="p-4">เวลา</th>
-                    <th className="p-4">สถานที่ปลายทาง</th>
-                    <th className="p-4">ผู้จอง</th>
-                    <th className="p-4">ประเภท/ทะเบียนรถ</th>
-                    <th className="p-4">คนขับ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 font-black text-gray-700">
-                  {bookingList
-                    .filter(b => b.status === 'อนุมัติแล้ว' || b.status === 'เสร็จสิ้นงาน')
-                    .sort((a, b) => new Date(a.date) - new Date(b.date))
-                    .map(item => (
-                    <tr key={item.id} className="hover:bg-blue-50 transition">
-                      <td className="p-4 text-blue-700">{item.date}</td>
-                      <td className="p-4">{item.time} น.</td>
-                      <td className="p-4">📍 {item.destination}</td>
-                      <td className="p-4">{item.requester}</td>
-                      <td className="p-4">🚗 {item.vehicleType} <br/><span className="text-xs text-orange-600">{item.assignedVehicle}</span></td>
-                      <td className="p-4">👤 {item.assignedDriver}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        <div className="max-w-7xl mx-auto p-4 md:p-8 animate-fadeIn">
+          <div className="bg-white p-6 md:p-8 rounded-3xl shadow-2xl border-4 border-blue-100">
+            {/* ส่วนหัวปฏิทิน: เลือกเดือน และปุ่มเลื่อน */}
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-6 pb-4 border-b-2 border-gray-100 gap-4">
+              <h2 className="text-2xl md:text-3xl font-black text-black flex items-center gap-3">
+                📅 ปฏิทินการใช้รถยนต์
+              </h2>
+              <div className="flex items-center gap-4 bg-blue-50 p-2 rounded-2xl border border-blue-200">
+                <button 
+                  onClick={prevMonth}
+                  className="px-4 py-2 bg-white hover:bg-blue-600 hover:text-white rounded-xl font-black shadow transition"
+                >
+                  ◀ เดือนก่อนหน้า
+                </button>
+                <span className="text-lg md:text-xl font-black text-blue-900 min-w-[180px] text-center">
+                  {thaiMonths[month]} {year + 543}
+                </span>
+                <button 
+                  onClick={nextMonth}
+                  className="px-4 py-2 bg-white hover:bg-blue-600 hover:text-white rounded-xl font-black shadow transition"
+                >
+                  เดือนถัดไป ▶
+                </button>
+              </div>
+            </div>
+
+            {/* ตารางปฏิทิน 7 วัน */}
+            <div className="grid grid-cols-7 gap-2">
+              {/* แถบหัววัน อา. - ส. */}
+              {['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'].map((day, idx) => (
+                <div 
+                  key={day} 
+                  className={`p-3 text-center font-black text-sm rounded-xl ${
+                    idx === 0 ? 'bg-red-100 text-red-700' : idx === 6 ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  {day}
+                </div>
+              ))}
+
+              {/* ช่องว่างก่อนวันที่ 1 */}
+              {Array.from({ length: firstDayIndex }).map((_, i) => (
+                <div key={`empty-${i}`} className="min-h-[110px] bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 opacity-40"></div>
+              ))}
+
+              {/* ช่องวันที่ 1 ถึงสิ้นเดือน */}
+              {Array.from({ length: totalDaysInMonth }).map((_, i) => {
+                const dayNumber = i + 1;
+                // สร้าง format วันที่ YYYY-MM-DD เพื่อค้นหาการจอง
+                const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`;
+                
+                // กรองรายการจองที่ตรงกับวันนั้นๆ
+                const dayBookings = bookingList.filter(
+                  b => b.date === formattedDate && (b.status === 'อนุมัติแล้ว' || b.status === 'เสร็จสิ้นงาน')
+                );
+
+                const isToday = new Date().toISOString().split('T')[0] === formattedDate;
+
+                return (
+                  <div 
+                    key={dayNumber} 
+                    className={`min-h-[120px] p-2 rounded-2xl border-2 flex flex-col justify-between transition hover:shadow-md ${
+                      isToday ? 'border-blue-600 bg-blue-50/30' : 'border-gray-100 bg-white'
+                    }`}
+                  >
+                    {/* ตัวเลขวันที่ */}
+                    <div className="flex justify-between items-center mb-1">
+                      <span className={`text-sm font-black px-2 py-0.5 rounded-lg ${
+                        isToday ? 'bg-blue-600 text-white' : 'text-gray-700 bg-gray-100'
+                      }`}>
+                        {dayNumber}
+                      </span>
+                      {dayBookings.length > 0 && (
+                        <span className="text-[10px] font-black text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
+                          {dayBookings.length} คิว
+                        </span>
+                      )}
+                    </div>
+
+                    {/* รายการคิวรถที่แสดงในช่องวันที่ */}
+                    <div className="space-y-1.5 overflow-y-auto max-h-[90px]">
+                      {dayBookings.map(item => (
+                        <div 
+                          key={item.id} 
+                          className="bg-blue-600 text-white p-1.5 rounded-xl text-[11px] font-bold shadow leading-tight"
+                        >
+                          <p className="truncate">📍 {item.destination}</p>
+                          <p className="text-[9px] opacity-90 truncate">⏰ {item.time} น. | {item.assignedVehicle || item.vehicleType}</p>
+                          <p className="text-[9px] text-yellow-200 truncate">👤 {item.assignedDriver || 'ยังไม่ระบุ'}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* คำอธิบายสัญลักษณ์ (Legend) */}
+            <div className="mt-6 flex flex-wrap gap-4 text-xs font-black text-gray-500 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-blue-600 inline-block"></span>
+                <span>คิวรถที่ได้รับการอนุมัติ</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-md border-2 border-blue-600 bg-blue-50 inline-block"></span>
+                <span>วันปัจจุบัน</span>
+              </div>
             </div>
           </div>
         </div>
