@@ -19,6 +19,7 @@ export default function App() {
     setIsMounted(true);
   }, []);
   // State สำหรับจัดการปฏิทินรายเดือน
+  const [showSchedule, setShowSchedule] = useState(false);
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(new Date());
 
   
