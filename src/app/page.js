@@ -13,9 +13,15 @@ export default function App() {
   const [usersList, setUsersList] = useState([]); // เก็บรายชื่อผู้ใช้ทั้งหมด
   const [adminTab, setAdminTab] = useState('bookings');
   
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   // State สำหรับจัดการปฏิทินรายเดือน
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(new Date());
 
+  
   // ชื่อเดือนภาษาไทย
   const thaiMonths = [
     'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
@@ -237,6 +243,11 @@ export default function App() {
     } catch (error) { alert(error.message); }
   };
 
+  // ป้องกัน Client-side Hydration Crash
+  if (!isMounted) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center font-bold text-gray-500">กำลังโหลดระบบ...</div>;
+  }
+
   // --- หน้าจอ Login ---
   if (!user) {
     return (
@@ -328,8 +339,9 @@ export default function App() {
                 const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`;
                 
                 // กรองรายการจองที่ตรงกับวันนั้นๆ
-                const dayBookings = bookingList.filter(
-                  b => b.date === formattedDate && (b.status === 'อนุมัติแล้ว' || b.status === 'เสร็จสิ้นงาน')
+                // เปลี่ยนจากเดิมเป็นใส่เครื่องหมาย ? เพื่อป้องกันข้อมูลว่าง
+                const dayBookings = (bookingList || []).filter(
+                b => b && b.date === formattedDate && (b.status === 'อนุมัติแล้ว' || b.status === 'เสร็จสิ้นงาน')
                 );
 
                 const isToday = new Date().toISOString().split('T')[0] === formattedDate;
