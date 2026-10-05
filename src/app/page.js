@@ -104,6 +104,7 @@ export default function App() {
   }, []);
 
   // --- ฟังก์ชัน Login แบบ Email/Password ---
+  // --- ฟังก์ชัน Login แบบ Email/Password (ปรับปรุงให้แสดง Error ชัดเจน) ---
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -111,7 +112,18 @@ export default function App() {
       setLoginEmail('');
       setLoginPassword('');
     } catch (error) {
-      alert("เข้าสู่ระบบไม่สำเร็จ: กรุณาตรวจสอบอีเมลและรหัสผ่าน");
+      console.error("Login Error Code:", error.code);
+      console.error("Login Error Message:", error.message);
+      
+      if (error.code === 'auth/invalid-credential') {
+        alert("เข้าสู่ระบบไม่สำเร็จ: อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+      } else if (error.code === 'auth/user-not-found') {
+        alert("ไม่พบผู้ใช้งานนี้ในระบบ กรุณาตรวจสอบอีเมลอีกครั้ง");
+      } else if (error.code === 'auth/wrong-password') {
+        alert("รหัสผ่านไม่ถูกต้อง");
+      } else {
+        alert("เข้าสู่ระบบไม่สำเร็จ: " + error.message);
+      }
     }
   };
 

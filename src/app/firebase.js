@@ -3,7 +3,7 @@ import { getDatabase } from "firebase/database";
 import { getAuth } from "firebase/auth";
 
 export const firebaseConfig = {
-  apiKey: "AIzaSyBvAvd3mG96jD2H6duLv61z12l1Wsc2Gg",
+  apiKey: "AIzaSyBvAvd3mG96jD2H6duLv61z12lL1Wsc2Gg",
   authDomain: "car-booking-bangphra.firebaseapp.com",
   databaseURL: "https://car-booking-bangphra-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "car-booking-bangphra",
