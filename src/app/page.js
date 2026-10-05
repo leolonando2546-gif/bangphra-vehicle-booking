@@ -603,7 +603,7 @@ export default function App() {
                         <thead className="bg-blue-50 border-b-2 border-blue-100">
                           <tr className="text-black font-black uppercase text-sm">
                             <th className="p-6">ผู้จอง / สถานะ</th>
-                            <th className="p-6">สถานที่ไป / วันเวลา</th>
+                            <th className="p-6">สถานที่ไป / วันเวลา / ประเภทรถที่ขอ</th>
                             <th className="p-6">เลือกรถ</th>
                             <th className="p-6">เลือกคนขับ</th>
                             <th className="p-6 text-center">จัดการ</th>
@@ -619,6 +619,9 @@ export default function App() {
                               <td className="p-6">
                                 <p className="font-black text-black">📍 {item.destination}</p>
                                 <span className="text-xs font-black text-blue-700">📅 {item.date} | ⏰ {item.time}</span>
+                                <div className="mt-1">
+                                  <span className="text-xs font-black bg-blue-100 text-blue-800 px-2 py-0.5 rounded">🚗 รถที่ขอ: {item.vehicleType || 'รถตู้ (12 ที่นั่ง)'}</span>
+                                </div>
                               </td>
                               <td className="p-6">
                                 <select id={`vehicle-${item.id}`} className="border-2 border-gray-200 p-2 text-xs rounded-xl font-black w-32">
