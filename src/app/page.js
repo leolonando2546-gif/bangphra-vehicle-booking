@@ -64,10 +64,21 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        const userRef = ref(db, `users/${currentUser.uid}`);
-        onValue(userRef, (snapshot) => {
+        
+        // ดึงข้อมูลจากตาราง users ทั้งหมดมาเช็กด้วยอีเมล เพื่อความชัวร์ไม่ให้พลาด
+        const usersRef = ref(db, 'users');
+        onValue(usersRef, (snapshot) => {
           if (snapshot.exists()) {
-            setUserRole(snapshot.val().role);
+            const data = snapshot.val();
+            const allUsers = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+            // ค้นหาข้อมูลผู้ใช้จากอีเมลที่ตรงกัน
+            const foundUser = allUsers.find(u => u.email === currentUser.email);
+            if (foundUser) {
+              setUserRole(foundUser.role);
+            } else {
+              // ถ้ายังไม่มีข้อมูลใน db ให้กำหนดสิทธิ์เริ่มต้นเป็น user ไปก่อน หรือบังคับเป็น admin ถ้าเป็นอีเมลหลัก
+              setUserRole(currentUser.email === 'leolonando2546@gmail.com' ? 'admin' : 'user');
+            }
           }
         });
       } else {
