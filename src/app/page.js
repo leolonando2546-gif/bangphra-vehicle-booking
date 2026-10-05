@@ -286,9 +286,9 @@ export default function App() {
         <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
         <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 z-10 relative border border-slate-100">
           <div className="text-center mb-8">
-            <img src="/555.jpg" alt="Logo" className="h-24 w-24 mx-auto mb-4 rounded-full object-cover shadow-md border-2 border-slate-100" />
+            <img src="/555.jpg" alt="Logo" className="h-20 mx-auto mb-4 object-contain" />
             <h1 className="text-2xl font-black text-slate-800">เข้าสู่ระบบ</h1>
-            <p className="text-sm font-bold text-slate-500 mt-1">ระบบบริหารจัดการยานพาหนะ เทศบาลเมืองบางพระ</p>
+            <p className="text-xs font-bold text-slate-500 mt-1">ระบบบริหารจัดการยานพาหนะ</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
@@ -394,7 +394,7 @@ export default function App() {
         <div className="flex flex-col md:flex-row min-h-[calc(100vh-73px)]">
           {userRole === 'admin' && (
             <div className="w-full md:w-64 bg-white border-r border-slate-200 p-4 space-y-2 shrink-0">
-              <p className="text-xs font-black text-slate-400 uppercase tracking-wider px-3 mb-2">เมการจัดการ</p>
+              <p className="text-xs font-black text-slate-400 uppercase tracking-wider px-3 mb-2">เมนูการจัดการ</p>
               <button onClick={() => setAdminTab('bookings')} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black transition flex items-center gap-3 ${adminTab === 'bookings' ? 'bg-indigo-50 text-indigo-700 font-black' : 'text-slate-700 hover:bg-slate-50'}`}>
                 <span>📋</span> รายการคำขอจองรถ
               </button>
@@ -653,7 +653,6 @@ export default function App() {
                               </td>
                               <td className="px-6 py-4 text-center">
                                 <div className="flex items-center justify-center gap-2">
-                                  {/* ซ่อนปุ่มอนุมัติทันทีถ้าอนุมัติแล้ว */}
                                   {item.status !== 'อนุมัติแล้ว' && item.status !== 'เสร็จสิ้นงาน' && (
                                     <button onClick={() => handleUpdateStatus(item, 'อนุมัติแล้ว', document.getElementById(`driver-${item.id}`).value, document.getElementById(`vehicle-${item.id}`).value)} className="px-3.5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-black shadow-sm hover:bg-emerald-700 transition">
                                       อนุมัติ
