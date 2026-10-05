@@ -201,11 +201,11 @@ export default function App() {
 
   const handleEditBooking = (item) => {
     setFormData({
-      purpose: item.purpose, destination: item.destination, date: item.date, time: item.time, vehicleType: item.vehicleType
+      purpose: item.purpose || '', destination: item.destination || '', date: item.date || '', time: item.time || '', vehicleType: item.vehicleType || 'รถตู้ (12 ที่นั่ง)'
     });
     remove(ref(db, `bookings/${item.id}`));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    alert("ดึงข้อมูลกลับมาที่ฟอร์มเพื่อแก้ไขแล้ว");
+    alert("ดึงข้อมูลกลับมาที่ฟอร์มเพื่อแก้ไขแล้ว กรุณากดยืนยันส่งคำใหม่อีกครั้ง");
   };
 
   const handleBooking = async (e) => {
@@ -219,7 +219,8 @@ export default function App() {
         requesterEmail: user.email,
         status: 'รออนุมัติ', 
         timestamp: Date.now(), 
-        fuelCost: 0 
+        fuelCost: 0,
+        rejectReason: ''
       };
       await push(bookingRef, newBooking);
       await emailjs.send('service_6zr2n1u', 'template_9js03jo', { ...newBooking, vehicle: newBooking.vehicleType }, 'NsbdSqmj53jtuT2nj');
@@ -255,10 +256,22 @@ export default function App() {
     }
     try {
       await update(ref(db, `bookings/${item.id}`), { 
-        status: newStatus, assignedDriver: driverName || 'ยังไม่ระบุ', assignedVehicle: selectedVehiclePlate || 'ยังไม่ระบุ'
+        status: newStatus, assignedDriver: driverName || 'ยังไม่ระบุ', assignedVehicle: selectedVehiclePlate || 'ยังไม่ระบุ', rejectReason: ''
       });
       alert(`อัปเดตสถานะเรียบร้อย`);
     } catch (error) { alert(error.message); }
+  };
+
+  const handleRejectBooking = async (item) => {
+    const reason = prompt("กรุณาระบุเหตุผลที่ไม่อนุมัติการจองนี้:", "รถไม่ว่าง / ติดภารกิจอื่น");
+    if (reason !== null) {
+      try {
+        await update(ref(db, `bookings/${item.id}`), { 
+          status: 'ไม่อนุมัติ', rejectReason: reason || 'ไม่ระบุเหตุผล' 
+        });
+        alert("บันทึกการปฏิเสธคำขอเรียบร้อย");
+      } catch (error) { alert(error.message); }
+    }
   };
 
   const handleDriverUpdate = async (e) => {
@@ -458,13 +471,21 @@ export default function App() {
                           <p className="font-black text-sm text-slate-900">📍 {item.destination}</p>
                           <p className="text-xs font-bold text-slate-600 mt-0.5">📅 {item.date} | ⏰ {item.time} น. ({item.vehicleType})</p>
                           <p className="text-xs font-black text-indigo-700 mt-1">พนักงานขับรถ: {item.assignedDriver || 'รอผู้ดูแลระบบมอบหมาย'}</p>
+                          {item.status === 'ไม่อนุมัติ' && (
+                            <p className="text-xs font-black text-rose-600 mt-1 bg-rose-50 px-2 py-1 rounded">⚠️ เหตุผลที่ไม่อนุมัติ: {item.rejectReason}</p>
+                          )}
                         </div>
                         <div className="flex flex-col items-end gap-2">
-                          <span className={`px-2.5 py-1 rounded-lg text-xs font-black ${item.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-900' : item.status === 'เสร็จสิ้นงาน' ? 'bg-blue-100 text-blue-900' : item.status === 'ขอยกเลิก' ? 'bg-rose-100 text-rose-900' : 'bg-amber-100 text-amber-900'}`}>
+                          <span className={`px-2.5 py-1 rounded-lg text-xs font-black ${item.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-900' : item.status === 'เสร็จสิ้นงาน' ? 'bg-blue-100 text-blue-900' : item.status === 'ไม่อนุมัติ' ? 'bg-rose-100 text-rose-900' : item.status === 'ขอยกเลิก' ? 'bg-amber-100 text-amber-900' : 'bg-amber-100 text-amber-900'}`}>
                             {item.status}
                           </span>
-                          {item.status === 'รออนุมัติ' && (
-                            <button onClick={() => handleRequestCancel(item.id)} className="text-xs text-rose-600 hover:underline font-black">ขอยกเลิก</button>
+                          {(item.status === 'รออนุมัติ' || item.status === 'ไม่อนุมัติ') && (
+                            <div className="flex gap-2">
+                              <button onClick={() => handleEditBooking(item)} className="text-xs text-indigo-600 hover:underline font-black">✏️ แก้ไข</button>
+                              {item.status === 'รออนุมัติ' && (
+                                <button onClick={() => handleRequestCancel(item.id)} className="text-xs text-rose-600 hover:underline font-black">ขอยกเลิก</button>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -630,9 +651,12 @@ export default function App() {
                             <tr key={item.id} className="hover:bg-slate-50 transition">
                               <td className="px-6 py-4">
                                 <p className="text-slate-900 text-sm">{item.requester}</p>
-                                <span className={`inline-block mt-1 px-2.5 py-1 rounded text-xs font-black ${item.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-900' : item.status === 'ขอยกเลิก' ? 'bg-rose-100 text-rose-900' : 'bg-amber-100 text-amber-900'}`}>
+                                <span className={`inline-block mt-1 px-2.5 py-1 rounded text-xs font-black ${item.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-900' : item.status === 'ไม่อนุมัติ' ? 'bg-rose-100 text-rose-900' : item.status === 'ขอยกเลิก' ? 'bg-amber-100 text-amber-900' : 'bg-amber-100 text-amber-900'}`}>
                                   {item.status}
                                 </span>
+                                {item.rejectReason && (
+                                  <p className="text-[10px] text-rose-600 mt-1">เหตุผล: {item.rejectReason}</p>
+                                )}
                               </td>
                               <td className="px-6 py-4">
                                 <p className="text-slate-900">📍 {item.destination}</p>
@@ -652,13 +676,18 @@ export default function App() {
                                 </select>
                               </td>
                               <td className="px-6 py-4 text-center">
-                                <div className="flex items-center justify-center gap-2">
+                                <div className="flex items-center justify-center gap-1.5 flex-wrap">
                                   {item.status !== 'อนุมัติแล้ว' && item.status !== 'เสร็จสิ้นงาน' && (
-                                    <button onClick={() => handleUpdateStatus(item, 'อนุมัติแล้ว', document.getElementById(`driver-${item.id}`).value, document.getElementById(`vehicle-${item.id}`).value)} className="px-3.5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-black shadow-sm hover:bg-emerald-700 transition">
+                                    <button onClick={() => handleUpdateStatus(item, 'อนุมัติแล้ว', document.getElementById(`driver-${item.id}`).value, document.getElementById(`vehicle-${item.id}`).value)} className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl text-[11px] font-black shadow-sm hover:bg-emerald-700 transition">
                                       อนุมัติ
                                     </button>
                                   )}
-                                  <button onClick={() => handleAdminDelete(item.id)} className="px-3.5 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-black transition">
+                                  {item.status !== 'ไม่อนุมัติ' && item.status !== 'เสร็จสิ้นงาน' && (
+                                    <button onClick={() => handleRejectBooking(item)} className="px-3 py-1.5 bg-amber-500 text-white rounded-xl text-[11px] font-black shadow-sm hover:bg-amber-600 transition">
+                                      ปฏิเสธ
+                                    </button>
+                                  )}
+                                  <button onClick={() => handleAdminDelete(item.id)} className="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-[11px] font-black transition">
                                     ลบ
                                   </button>
                                 </div>
