@@ -165,6 +165,13 @@ export default function App() {
     }
   };
 
+  const handleVehicleStatusChange = async (vehicleId, newStatus) => {
+    try {
+      await update(ref(db, `vehicles/${vehicleId}`), { status: newStatus });
+      alert("อัปเดตสถานะรถสำเร็จ");
+    } catch (error) { alert(error.message); }
+  };
+
   const handleRequestCancel = async (id) => {
     if (window.confirm("คุณต้องการส่งคำขอยกเลิกการจองนี้ให้ผู้ดูแลระบบใช่หรือไม่?")) {
       try {
@@ -270,47 +277,44 @@ export default function App() {
   };
 
   if (!isMounted) {
-    return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-medium text-slate-400">กำลังโหลดระบบ...</div>;
+    return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-500 text-lg">กำลังโหลดระบบ...</div>;
   }
 
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center" style={{ backgroundImage: 'url("/logo2.jpg")' }}>
         <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
-        <div className="max-w-md w-full bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8 z-10 relative border border-slate-100">
+        <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 z-10 relative border border-slate-100">
           <div className="text-center mb-8">
-            <img src="/555.jpg" alt="Logo" className="h-20 w-20 mx-auto mb-4 rounded-full object-cover shadow-md border-2 border-slate-100" />
-            <h1 className="text-2xl font-bold text-slate-800">เข้าสู่ระบบ</h1>
-            <p className="text-sm text-slate-500 mt-1 font-medium">ระบบบริหารจัดการยานพาหนะ เทศบาลเมืองบางพระ</p>
+            <img src="/555.jpg" alt="Logo" className="h-24 w-24 mx-auto mb-4 rounded-full object-cover shadow-md border-2 border-slate-100" />
+            <h1 className="text-2xl font-black text-slate-800">เข้าสู่ระบบ</h1>
+            <p className="text-sm font-bold text-slate-500 mt-1">ระบบบริหารจัดการยานพาหนะ เทศบาลเมืองบางพระ</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-slate-600 block mb-1">อีเมลองค์กร</label>
+              <label className="text-xs font-black text-slate-700 block mb-1">อีเมลองค์กร</label>
               <input 
                 type="email" 
                 required 
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 outline-none text-slate-800 text-sm transition"
+                className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 outline-none text-slate-800 font-bold text-sm transition"
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600 block mb-1">รหัสผ่าน</label>
+              <label className="text-xs font-black text-slate-700 block mb-1">รหัสผ่าน</label>
               <input 
                 type="password" 
                 required 
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 outline-none text-slate-800 text-sm transition"
+                className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 outline-none text-slate-800 font-bold text-sm transition"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
               />
             </div>
-            <button type="submit" className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-semibold text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-[0.98] transition">
+            <button type="submit" className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-black text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-[0.98] transition">
               เข้าสู่ระบบ
             </button>
           </form>
-          <div className="mt-6 pt-4 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-400 font-medium">หากพบปัญหาการเข้าใช้งาน กรุณาติดต่อผู้ดูแลระบบ IT</p>
-          </div>
         </div>
       </div>
     );
@@ -319,25 +323,24 @@ export default function App() {
   const currentUserInfo = usersList.find(u => u.email === user.email);
 
   return (
-    <div className="min-h-screen bg-slate-100/60 text-slate-800 font-sans">
-      {/* Navbar สไตล์องค์กร */}
-      <nav className="bg-slate-900 text-white px-6 py-3.5 shadow-md flex justify-between items-center sticky top-0 z-50">
+    <div className="min-h-screen bg-slate-100/70 text-slate-900 font-sans">
+      <nav className="bg-slate-900 text-white px-6 py-4 shadow-md flex justify-between items-center sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 bg-indigo-600 text-white flex items-center justify-center rounded-xl font-bold text-base shadow-inner">
+          <div className="h-10 w-10 bg-indigo-600 text-white flex items-center justify-center rounded-xl font-black text-lg shadow-inner">
             {currentUserInfo?.name ? currentUserInfo.name.charAt(0) : 'U'}
           </div>
           <div>
-            <span className="font-bold text-sm tracking-wide text-slate-100 block">เทศบาลเมืองบางพระ</span>
-            <span className="text-[11px] text-slate-400 font-medium tracking-wider uppercase">
-              {userRole === 'admin' ? 'ผู้ดูแลระบบ (Admin)' : userRole === 'driver' ? 'พนักงานขับรถ (Driver)' : 'ผู้ใช้งานทั่วไป (User)'} • {currentUserInfo?.name || user.email}
+            <span className="font-black text-base text-slate-100 block">เทศบาลเมืองบางพระ</span>
+            <span className="text-xs text-slate-400 font-bold uppercase">
+              {userRole === 'admin' ? 'ผู้ดูแลระบบ (ADMIN)' : userRole === 'driver' ? 'พนักงานขับรถ (DRIVER)' : 'ผู้ใช้งานทั่วไป (USER)'} • {currentUserInfo?.name || user.email}
             </span>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => setShowSchedule(!showSchedule)} className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold transition border border-slate-700 flex items-center gap-2">
-            <span>{showSchedule ? '🏠 หน้าหลัก' : '📅 ปฏิทินตารางรถ'}</span>
+          <button onClick={() => setShowSchedule(!showSchedule)} className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-black transition border border-slate-700">
+            {showSchedule ? '🏠 หน้าหลัก' : '📅 ปฏิทินตารางรถ'}
           </button>
-          <button onClick={handleLogout} className="text-slate-400 hover:text-rose-400 text-xs font-semibold transition px-2 py-1">
+          <button onClick={handleLogout} className="text-rose-400 hover:text-rose-300 text-xs font-black transition px-2 py-1">
             ออกจากระบบ
           </button>
         </div>
@@ -345,21 +348,18 @@ export default function App() {
 
       {showSchedule ? (
         <div className="max-w-7xl mx-auto p-6 md:p-8">
-          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200/80">
+          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 pb-4 border-b border-slate-100 gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-slate-800">ตารางการใช้ยานพาหนะส่วนกลาง</h2>
-                <p className="text-xs text-slate-500 mt-0.5">ตรวจสอบวันเวลาและสถานะการจองรถประจำเดือน</p>
-              </div>
+              <h2 className="text-xl font-black text-slate-800">ตารางการใช้ยานพาหนะส่วนกลาง</h2>
               <div className="flex items-center gap-3 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
-                <button onClick={prevMonth} className="px-3 py-1.5 bg-white hover:bg-slate-100 rounded-lg text-xs font-semibold shadow-sm text-slate-700 transition">◀ ก่อนหน้า</button>
-                <span className="text-sm font-bold text-slate-800 min-w-[140px] text-center">{thaiMonths[month]} {year + 543}</span>
-                <button onClick={nextMonth} className="px-3 py-1.5 bg-white hover:bg-slate-100 rounded-lg text-xs font-semibold shadow-sm text-slate-700 transition">ถัดไป ▶</button>
+                <button onClick={prevMonth} className="px-3 py-1.5 bg-white hover:bg-slate-100 rounded-lg text-xs font-black shadow-sm text-slate-700 transition">◀ ก่อนหน้า</button>
+                <span className="text-sm font-black text-slate-800 min-w-[140px] text-center">{thaiMonths[month]} {year + 543}</span>
+                <button onClick={nextMonth} className="px-3 py-1.5 bg-white hover:bg-slate-100 rounded-lg text-xs font-black shadow-sm text-slate-700 transition">ถัดไป ▶</button>
               </div>
             </div>
             <div className="grid grid-cols-7 gap-2">
               {['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'].map((day, idx) => (
-                <div key={day} className={`py-2 text-center font-semibold text-xs rounded-lg ${idx === 0 ? 'text-rose-600 bg-rose-50' : idx === 6 ? 'text-purple-600 bg-purple-50' : 'text-slate-600 bg-slate-50'}`}>{day}</div>
+                <div key={day} className={`py-2 text-center font-black text-xs rounded-lg ${idx === 0 ? 'text-rose-700 bg-rose-50' : idx === 6 ? 'text-purple-700 bg-purple-50' : 'text-slate-700 bg-slate-50'}`}>{day}</div>
               ))}
               {Array.from({ length: firstDayIndex }).map((_, i) => (
                 <div key={`empty-${i}`} className="min-h-[100px] bg-slate-50/40 rounded-xl border border-dashed border-slate-200"></div>
@@ -371,14 +371,14 @@ export default function App() {
                 const isToday = todayDate === formattedDate;
 
                 return (
-                  <div key={dayNumber} className={`min-h-[110px] p-2 rounded-xl border flex flex-col justify-between transition ${isToday ? 'border-indigo-500 bg-indigo-50/20' : 'border-slate-200/80 bg-white'}`}>
+                  <div key={dayNumber} className={`min-h-[110px] p-2 rounded-xl border flex flex-col justify-between transition ${isToday ? 'border-indigo-500 bg-indigo-50/20' : 'border-slate-200 bg-white'}`}>
                     <div className="flex justify-between items-center mb-1">
-                      <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${isToday ? 'bg-indigo-600 text-white' : 'text-slate-700 bg-slate-100'}`}>{dayNumber}</span>
+                      <span className={`text-xs font-black px-1.5 py-0.5 rounded ${isToday ? 'bg-indigo-600 text-white' : 'text-slate-800 bg-slate-100'}`}>{dayNumber}</span>
                     </div>
                     <div className="space-y-1 overflow-y-auto max-h-[85px]">
                       {dayBookings.map(item => (
-                        <div key={item.id} className="bg-slate-900 text-white p-1.5 rounded-lg text-[10px] shadow-sm leading-tight">
-                          <p className="font-semibold truncate">📍 {item.destination}</p>
+                        <div key={item.id} className="bg-slate-900 text-white p-1.5 rounded-lg text-[10px] shadow-sm leading-tight font-bold">
+                          <p className="truncate">📍 {item.destination}</p>
                           <p className="text-[9px] text-slate-300 truncate mt-0.5">⏰ {item.time} | {item.assignedVehicle || item.vehicleType}</p>
                           <p className="text-[9px] text-amber-300 truncate">👤 {item.assignedDriver || 'รอระบุคนขับ'}</p>
                         </div>
@@ -391,82 +391,80 @@ export default function App() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col md:flex-row min-h-[calc(100vh-61px)]">
-          {/* Sidebar สำหรับ Admin */}
+        <div className="flex flex-col md:flex-row min-h-[calc(100vh-73px)]">
           {userRole === 'admin' && (
-            <div className="w-full md:w-60 bg-white border-r border-slate-200/80 p-4 space-y-1.5 shrink-0">
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">เมนูการจัดการ</p>
-              <button onClick={() => setAdminTab('bookings')} className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2.5 ${adminTab === 'bookings' ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
+            <div className="w-full md:w-64 bg-white border-r border-slate-200 p-4 space-y-2 shrink-0">
+              <p className="text-xs font-black text-slate-400 uppercase tracking-wider px-3 mb-2">เมการจัดการ</p>
+              <button onClick={() => setAdminTab('bookings')} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black transition flex items-center gap-3 ${adminTab === 'bookings' ? 'bg-indigo-50 text-indigo-700 font-black' : 'text-slate-700 hover:bg-slate-50'}`}>
                 <span>📋</span> รายการคำขอจองรถ
               </button>
-              <button onClick={() => setAdminTab('fleet')} className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2.5 ${adminTab === 'fleet' ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
+              <button onClick={() => setAdminTab('fleet')} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black transition flex items-center gap-3 ${adminTab === 'fleet' ? 'bg-indigo-50 text-indigo-700 font-black' : 'text-slate-700 hover:bg-slate-50'}`}>
                 <span>🚗</span> บริหารยานพาหนะ (Fleet)
               </button>
-              <button onClick={() => setAdminTab('users')} className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2.5 ${adminTab === 'users' ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
+              <button onClick={() => setAdminTab('users')} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black transition flex items-center gap-3 ${adminTab === 'users' ? 'bg-indigo-50 text-indigo-700 font-black' : 'text-slate-700 hover:bg-slate-50'}`}>
                 <span>👥</span> จัดการบัญชีผู้ใช้งาน
               </button>
-              <button onClick={() => setAdminTab('reports')} className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2.5 ${adminTab === 'reports' ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
+              <button onClick={() => setAdminTab('reports')} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black transition flex items-center gap-3 ${adminTab === 'reports' ? 'bg-indigo-50 text-indigo-700 font-black' : 'text-slate-700 hover:bg-slate-50'}`}>
                 <span>📊</span> รายงานสถิติภาพรวม
               </button>
             </div>
           )}
 
           <div className="flex-1 p-6 md:p-8 overflow-y-auto">
-            {/* หน้าจอ User ทั่วไป */}
             {userRole === 'user' && (
               <div className="max-w-2xl mx-auto space-y-6">
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8">
-                  <h2 className="text-lg font-bold text-slate-800 mb-1">ฟอร์มส่งคำขอจองรถยนต์ส่วนกลาง</h2>
-                  <p className="text-xs text-slate-500 mb-6">กรอกรายละเอียดภารกิจเพื่อเสนอผู้ดูแลระบบอนุมัติการใช้รถ</p>
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                  <h2 className="text-lg font-black text-slate-800 mb-1">ฟอร์มส่งคำขอจองรถยนต์ส่วนกลาง</h2>
+                  <p className="text-xs font-bold text-slate-500 mb-6">กรอกรายละเอียดภารกิจเพื่อเสนอผู้ดูแลระบบอนุมัติการใช้รถ</p>
                   <form onSubmit={handleBooking} className="space-y-4">
                     <div>
-                      <label className="text-xs font-semibold text-slate-600 block mb-1">วัตถุประสงค์ / ภารกิจ</label>
-                      <input type="text" required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={formData.purpose} onChange={(e)=>setFormData({...formData, purpose: e.target.value})} />
+                      <label className="text-xs font-black text-slate-700 block mb-1">วัตถุประสงค์ / ภารกิจ</label>
+                      <input type="text" required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={formData.purpose} onChange={(e)=>setFormData({...formData, purpose: e.target.value})} />
                     </div>
                     <div>
-                      <label className="text-xs font-semibold text-slate-600 block mb-1">สถานที่ปลายทาง</label>
-                      <input type="text" required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={formData.destination} onChange={(e)=>setFormData({...formData, destination: e.target.value})} />
+                      <label className="text-xs font-black text-slate-700 block mb-1">สถานที่ปลายทาง</label>
+                      <input type="text" required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={formData.destination} onChange={(e)=>setFormData({...formData, destination: e.target.value})} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs font-semibold text-slate-600 block mb-1">วันที่เดินทาง</label>
-                        <input type="date" required min={todayDate} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={formData.date} onChange={(e)=>setFormData({...formData, date: e.target.value})} />
+                        <label className="text-xs font-black text-slate-700 block mb-1">วันที่เดินทาง</label>
+                        <input type="date" required min={todayDate} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={formData.date} onChange={(e)=>setFormData({...formData, date: e.target.value})} />
                       </div>
                       <div>
-                        <label className="text-xs font-semibold text-slate-600 block mb-1">เวลาเดินทาง</label>
-                        <input type="time" required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={formData.time} onChange={(e)=>setFormData({...formData, time: e.target.value})} />
+                        <label className="text-xs font-black text-slate-700 block mb-1">เวลาเดินทาง</label>
+                        <input type="time" required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={formData.time} onChange={(e)=>setFormData({...formData, time: e.target.value})} />
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-semibold text-slate-600 block mb-1">ประเภทรถยนต์ที่ต้องการ</label>
-                      <select className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={formData.vehicleType} onChange={(e)=>setFormData({...formData, vehicleType: e.target.value})}>
+                      <label className="text-xs font-black text-slate-700 block mb-1">ประเภทรถยนต์ที่ต้องการ</label>
+                      <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={formData.vehicleType} onChange={(e)=>setFormData({...formData, vehicleType: e.target.value})}>
                         <option>รถตู้ (12 ที่นั่ง)</option>
                         <option>รถเก๋ง (4 ที่นั่ง)</option>
                         <option>รถกระบะ</option>
                       </select>
                     </div>
-                    <button className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold text-xs shadow-md shadow-indigo-100 hover:bg-indigo-700 transition">
+                    <button className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-black text-xs shadow-md shadow-indigo-100 hover:bg-indigo-700 transition">
                       ยืนยันการส่งคำขอจองรถ
                     </button>
                   </form>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8">
-                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide mb-4">สถานะการจองรถของคุณ</h3>
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                  <h3 className="text-xs font-black text-slate-800 uppercase tracking-wide mb-4">สถานะการจองรถของคุณ</h3>
                   <div className="space-y-3">
                     {bookingList.filter(b => b.requesterEmail === user.email).map(item => (
-                      <div key={item.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50/60 flex justify-between items-center">
+                      <div key={item.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex justify-between items-center">
                         <div>
-                          <p className="font-bold text-sm text-slate-800">📍 {item.destination}</p>
-                          <p className="text-[11px] text-slate-500 mt-0.5">📅 {item.date} | ⏰ {item.time} น. ({item.vehicleType})</p>
-                          <p className="text-[11px] text-indigo-600 font-semibold mt-1">พนักงานขับรถ: {item.assignedDriver || 'รอผู้ดูแลระบบมอบหมาย'}</p>
+                          <p className="font-black text-sm text-slate-900">📍 {item.destination}</p>
+                          <p className="text-xs font-bold text-slate-600 mt-0.5">📅 {item.date} | ⏰ {item.time} น. ({item.vehicleType})</p>
+                          <p className="text-xs font-black text-indigo-700 mt-1">พนักงานขับรถ: {item.assignedDriver || 'รอผู้ดูแลระบบมอบหมาย'}</p>
                         </div>
                         <div className="flex flex-col items-end gap-2">
-                          <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${item.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-800' : item.status === 'เสร็จสิ้นงาน' ? 'bg-blue-100 text-blue-800' : item.status === 'ขอยกเลิก' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'}`}>
+                          <span className={`px-2.5 py-1 rounded-lg text-xs font-black ${item.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-900' : item.status === 'เสร็จสิ้นงาน' ? 'bg-blue-100 text-blue-900' : item.status === 'ขอยกเลิก' ? 'bg-rose-100 text-rose-900' : 'bg-amber-100 text-amber-900'}`}>
                             {item.status}
                           </span>
                           {item.status === 'รออนุมัติ' && (
-                            <button onClick={() => handleRequestCancel(item.id)} className="text-[10px] text-rose-600 hover:underline font-semibold">ขอยกเลิก</button>
+                            <button onClick={() => handleRequestCancel(item.id)} className="text-xs text-rose-600 hover:underline font-black">ขอยกเลิก</button>
                           )}
                         </div>
                       </div>
@@ -476,20 +474,19 @@ export default function App() {
               </div>
             )}
 
-            {/* หน้าจอ Driver */}
             {userRole === 'driver' && (
-              <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8">
+              <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                 <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                  <div className="h-10 w-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center font-bold">🚛</div>
+                  <div className="h-10 w-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center font-black">🚛</div>
                   <div>
-                    <h2 className="text-base font-bold text-slate-800">บันทึกข้อมูลการปฏิบัติงาน</h2>
-                    <p className="text-xs text-slate-500">บันทึกเลขไมล์และค่าน้ำมันหลังเสร็จสิ้นภารกิจ</p>
+                    <h2 className="text-base font-black text-slate-800">บันทึกข้อมูลการปฏิบัติงาน</h2>
+                    <p className="text-xs font-bold text-slate-500">บันทึกเลขไมล์และค่าน้ำมันหลังเสร็จสิ้นภารกิจ</p>
                   </div>
                 </div>
                 <form onSubmit={handleDriverUpdate} className="space-y-4">
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 block mb-1">เลือกรายการงานที่ได้รับมอบหมาย</label>
-                    <select className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={mileageRecord.bookingId} onChange={(e) => setMileageRecord({...mileageRecord, bookingId: e.target.value})}>
+                    <label className="text-xs font-black text-slate-700 block mb-1">เลือกรายการงานที่ได้รับมอบหมาย</label>
+                    <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={mileageRecord.bookingId} onChange={(e) => setMileageRecord({...mileageRecord, bookingId: e.target.value})}>
                       <option value="">-- เลือกรายการงาน --</option>
                       {bookingList.filter(b => b.status === 'อนุมัติแล้ว').map(b => (
                         <option key={b.id} value={b.id}>📍 {b.destination} ({b.date})</option>
@@ -497,86 +494,85 @@ export default function App() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 block mb-1">เลือกรถที่ใช้ปฏิบัติงานจริง</label>
-                    <select className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={mileageRecord.vehicleId} onChange={(e) => setMileageRecord({...mileageRecord, vehicleId: e.target.value})}>
+                    <label className="text-xs font-black text-slate-700 block mb-1">เลือกรถที่ใช้ปฏิบัติงานจริง</label>
+                    <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={mileageRecord.vehicleId} onChange={(e) => setMileageRecord({...mileageRecord, vehicleId: e.target.value})}>
                       <option value="">-- เลือกรถ --</option>
                       {vehicleList.map(v => <option key={v.id} value={v.id}>{v.plate} (ไมล์ล่าสุด: {v.mileage})</option>)}
                     </select>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-semibold text-slate-600 block mb-1">เลขไมล์เริ่มต้น</label>
-                      <input type="number" className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={mileageRecord.startMile} onChange={(e)=>setMileageRecord({...mileageRecord, startMile: e.target.value})} />
+                      <label className="text-xs font-black text-slate-700 block mb-1">เลขไมล์เริ่มต้น</label>
+                      <input type="number" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={mileageRecord.startMile} onChange={(e)=>setMileageRecord({...mileageRecord, startMile: e.target.value})} />
                     </div>
                     <div>
-                      <label className="text-xs font-semibold text-slate-600 block mb-1">เลขไมล์สิ้นสุด</label>
-                      <input type="number" className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={mileageRecord.endMile} onChange={(e)=>setMileageRecord({...mileageRecord, endMile: e.target.value})} />
+                      <label className="text-xs font-black text-slate-700 block mb-1">เลขไมล์สิ้นสุด</label>
+                      <input type="number" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={mileageRecord.endMile} onChange={(e)=>setMileageRecord({...mileageRecord, endMile: e.target.value})} />
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-600 block mb-1">ค่าน้ำมันรวม (บาท)</label>
-                    <input type="number" className="w-full px-4 py-2.5 bg-amber-50/50 border border-amber-200 rounded-xl text-sm font-bold text-amber-800 focus:bg-white outline-none transition" value={mileageRecord.fuelCost} onChange={(e)=>setMileageRecord({...mileageRecord, fuelCost: e.target.value})} />
+                    <label className="text-xs font-black text-slate-700 block mb-1">ค่าน้ำมันรวม (บาท)</label>
+                    <input type="number" className="w-full px-4 py-3 bg-amber-50/50 border border-amber-200 rounded-xl text-sm font-black text-amber-900 focus:bg-white outline-none transition" value={mileageRecord.fuelCost} onChange={(e)=>setMileageRecord({...mileageRecord, fuelCost: e.target.value})} />
                   </div>
-                  <button className="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold text-xs shadow-md hover:bg-slate-800 transition">
+                  <button className="w-full bg-slate-900 text-white py-3.5 rounded-xl font-black text-xs shadow-md hover:bg-slate-800 transition">
                     บันทึกข้อมูลและปิดงาน
                   </button>
                 </form>
               </div>
             )}
 
-            {/* หน้าจอ Admin */}
             {userRole === 'admin' && (
               <div className="max-w-6xl mx-auto space-y-6">
                 {adminTab === 'users' && (
                   <div className="space-y-6">
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8">
-                      <h2 className="text-base font-bold text-slate-800 mb-1">เพิ่มบัญชีผู้ใช้งานใหม่ในระบบ</h2>
-                      <p className="text-xs text-slate-500 mb-6">สร้างบัญชีสำหรับบุคลากรภายในองค์กรและกำหนดสิทธิ์การใช้งาน</p>
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                      <h2 className="text-base font-black text-slate-800 mb-1">เพิ่มบัญชีผู้ใช้งานใหม่ในระบบ</h2>
+                      <p className="text-xs font-bold text-slate-500 mb-6">สร้างบัญชีสำหรับบุคลากรภายในองค์กรและกำหนดสิทธิ์การใช้งาน</p>
                       <form onSubmit={handleCreateNewUser} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="text-xs font-semibold text-slate-600 block mb-1">อีเมลผู้ใช้งาน</label>
-                            <input type="email" required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.email} onChange={(e)=>setNewUserAccount({...newUserAccount, email: e.target.value})} />
+                            <label className="text-xs font-black text-slate-700 block mb-1">อีเมลผู้ใช้งาน</label>
+                            <input type="email" required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.email} onChange={(e)=>setNewUserAccount({...newUserAccount, email: e.target.value})} />
                           </div>
                           <div>
-                            <label className="text-xs font-semibold text-slate-600 block mb-1">รหัสผ่านเริ่มต้น (อย่างน้อย 6 ตัว)</label>
-                            <input type="password" required minLength="6" className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.password} onChange={(e)=>setNewUserAccount({...newUserAccount, password: e.target.value})} />
+                            <label className="text-xs font-black text-slate-700 block mb-1">รหัสผ่านเริ่มต้น (อย่างน้อย 6 ตัว)</label>
+                            <input type="password" required minLength="6" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.password} onChange={(e)=>setNewUserAccount({...newUserAccount, password: e.target.value})} />
                           </div>
                           <div>
-                            <label className="text-xs font-semibold text-slate-600 block mb-1">ชื่อ - นามสกุล</label>
-                            <input type="text" required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.name} onChange={(e)=>setNewUserAccount({...newUserAccount, name: e.target.value})} />
+                            <label className="text-xs font-black text-slate-700 block mb-1">ชื่อ - นามสกุล</label>
+                            <input type="text" required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.name} onChange={(e)=>setNewUserAccount({...newUserAccount, name: e.target.value})} />
                           </div>
                           <div>
-                            <label className="text-xs font-semibold text-slate-600 block mb-1">แผนก / กอง</label>
-                            <input type="text" className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.department} onChange={(e)=>setNewUserAccount({...newUserAccount, department: e.target.value})} />
+                            <label className="text-xs font-black text-slate-700 block mb-1">แผนก / กอง</label>
+                            <input type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.department} onChange={(e)=>setNewUserAccount({...newUserAccount, department: e.target.value})} />
                           </div>
                           <div>
-                            <label className="text-xs font-semibold text-slate-600 block mb-1">เบอร์โทรศัพท์ภายใน/มือถือ</label>
-                            <input type="text" className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.phone} onChange={(e)=>setNewUserAccount({...newUserAccount, phone: e.target.value})} />
+                            <label className="text-xs font-black text-slate-700 block mb-1">เบอร์โทรศัพท์ภายใน/มือถือ</label>
+                            <input type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.phone} onChange={(e)=>setNewUserAccount({...newUserAccount, phone: e.target.value})} />
                           </div>
                           <div>
-                            <label className="text-xs font-semibold text-slate-600 block mb-1">กำหนดสิทธิ์ระบบ</label>
-                            <select className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.role} onChange={(e)=>setNewUserAccount({...newUserAccount, role: e.target.value})}>
+                            <label className="text-xs font-black text-slate-700 block mb-1">กำหนดสิทธิ์ระบบ</label>
+                            <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newUserAccount.role} onChange={(e)=>setNewUserAccount({...newUserAccount, role: e.target.value})}>
                               <option value="user">ผู้ใช้งานทั่วไป (User)</option>
                               <option value="driver">พนักงานขับรถ (Driver)</option>
                               <option value="admin">ผู้ดูแลระบบ (Admin)</option>
                             </select>
                           </div>
                         </div>
-                        <button type="submit" className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-semibold text-xs shadow-md shadow-indigo-100 hover:bg-indigo-700 transition">
+                        <button type="submit" className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-black text-xs shadow-md shadow-indigo-100 hover:bg-indigo-700 transition">
                           บันทึกผู้ใช้งานใหม่
                         </button>
                       </form>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                       <div className="px-6 py-4 bg-slate-50 border-b border-slate-100">
-                        <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">รายชื่อบัญชีผู้ใช้งานทั้งหมดในระบบ</h3>
+                        <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">รายชื่อบัญชีผู้ใช้งานทั้งหมดในระบบ</h3>
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                           <thead>
-                            <tr className="bg-slate-50/50 text-slate-500 font-semibold text-[11px] uppercase border-b border-slate-100">
+                            <tr className="bg-slate-50/50 text-slate-600 font-black text-xs uppercase border-b border-slate-100">
                               <th className="px-6 py-3">ชื่อ - นามสกุล</th>
                               <th className="px-6 py-3">อีเมล</th>
                               <th className="px-6 py-3">แผนก</th>
@@ -585,20 +581,20 @@ export default function App() {
                               <th className="px-6 py-3 text-center">จัดการสิทธิ์</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100 text-xs font-medium">
+                          <tbody className="divide-y divide-slate-100 text-xs font-black">
                             {usersList.map((u) => (
-                              <tr key={u.id || u.uid} className="hover:bg-slate-50/60 transition">
-                                <td className="px-6 py-3.5 font-bold text-slate-800">{u.name}</td>
-                                <td className="px-6 py-3.5 text-slate-600">{u.email}</td>
-                                <td className="px-6 py-3.5 text-slate-600">{u.department || '-'}</td>
-                                <td className="px-6 py-3.5 text-slate-600">{u.phone || '-'}</td>
-                                <td className="px-6 py-3.5 text-center">
-                                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : u.role === 'driver' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'}`}>
+                              <tr key={u.id || u.uid} className="hover:bg-slate-50 transition">
+                                <td className="px-6 py-4 text-slate-900">{u.name}</td>
+                                <td className="px-6 py-4 text-slate-700">{u.email}</td>
+                                <td className="px-6 py-4 text-slate-700">{u.department || '-'}</td>
+                                <td className="px-6 py-4 text-slate-700">{u.phone || '-'}</td>
+                                <td className="px-6 py-4 text-center">
+                                  <span className={`px-2.5 py-1 rounded-lg text-xs font-black ${u.role === 'admin' ? 'bg-purple-100 text-purple-900' : u.role === 'driver' ? 'bg-amber-100 text-amber-900' : 'bg-slate-100 text-slate-900'}`}>
                                     {u.role.toUpperCase()}
                                   </span>
                                 </td>
-                                <td className="px-6 py-3.5 text-center">
-                                  <select className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 outline-none" value={u.role} onChange={(e) => handleRoleChange(u.id || u.uid, e.target.value)}>
+                                <td className="px-6 py-4 text-center">
+                                  <select className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none" value={u.role} onChange={(e) => handleRoleChange(u.id || u.uid, e.target.value)}>
                                     <option value="user">User</option>
                                     <option value="driver">Driver</option>
                                     <option value="admin">Admin</option>
@@ -614,14 +610,14 @@ export default function App() {
                 )}
 
                 {adminTab === 'bookings' && (
-                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="px-6 py-4 bg-slate-50 border-b border-slate-100">
-                      <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">รายการคำขอใช้รถยนต์รออนุมัติ</h3>
+                      <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">รายการคำขอใช้รถยนต์ทั้งหมด</h3>
                     </div>
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-slate-50/50 text-slate-500 font-semibold text-[11px] uppercase border-b border-slate-100">
+                          <tr className="bg-slate-50/50 text-slate-600 font-black text-xs uppercase border-b border-slate-100">
                             <th className="px-6 py-3">ผู้จอง / สถานะ</th>
                             <th className="px-6 py-3">รายละเอียดการเดินทาง</th>
                             <th className="px-6 py-3">มอบหมายรถ</th>
@@ -629,40 +625,41 @@ export default function App() {
                             <th className="px-6 py-3 text-center">ดำเนินการ</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 text-xs font-medium">
+                        <tbody className="divide-y divide-slate-100 text-xs font-black">
                           {bookingList.map((item) => (
-                            <tr key={item.id} className="hover:bg-slate-50/65 transition">
+                            <tr key={item.id} className="hover:bg-slate-50 transition">
                               <td className="px-6 py-4">
-                                <p className="font-bold text-slate-800 text-sm">{item.requester}</p>
-                                <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold ${item.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-800' : item.status === 'ขอยกเลิก' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'}`}>
+                                <p className="text-slate-900 text-sm">{item.requester}</p>
+                                <span className={`inline-block mt-1 px-2.5 py-1 rounded text-xs font-black ${item.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-900' : item.status === 'ขอยกเลิก' ? 'bg-rose-100 text-rose-900' : 'bg-amber-100 text-amber-900'}`}>
                                   {item.status}
                                 </span>
                               </td>
                               <td className="px-6 py-4">
-                                <p className="font-bold text-slate-800">📍 {item.destination}</p>
-                                <p className="text-[11px] text-slate-500 mt-0.5">📅 {item.date} | ⏰ {item.time} น.</p>
-                                <span className="inline-block mt-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[10px] font-bold">🚗 รถที่ขอ: {item.vehicleType || 'รถตู้ (12 ที่นั่ง)'}</span>
+                                <p className="text-slate-900">📍 {item.destination}</p>
+                                <p className="text-xs text-slate-600 mt-0.5">📅 {item.date} | ⏰ {item.time} น.</p>
+                                <span className="inline-block mt-1 px-2.5 py-0.5 bg-indigo-50 text-indigo-800 rounded text-xs font-black">🚗 รถที่ขอ: {item.vehicleType || 'รถตู้ (12 ที่นั่ง)'}</span>
                               </td>
                               <td className="px-6 py-4">
-                                <select id={`vehicle-${item.id}`} className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 outline-none w-36">
+                                <select id={`vehicle-${item.id}`} className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none w-40">
                                   <option value="">-- เลือกรถ --</option>
                                   {vehicleList.map(v => <option key={v.id} value={v.plate}>{v.plate} ({v.type})</option>)}
                                 </select>
                               </td>
                               <td className="px-6 py-4">
-                                <select id={`driver-${item.id}`} className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 outline-none w-36">
+                                <select id={`driver-${item.id}`} className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none w-40">
                                   <option value="">-- เลือกคนขับ --</option>
                                   {usersList.filter(u => u.role === 'driver').map(u => <option key={u.id || u.uid} value={u.name}>{u.name}</option>)}
                                 </select>
                               </td>
                               <td className="px-6 py-4 text-center">
                                 <div className="flex items-center justify-center gap-2">
-                                  {item.status !== 'เสร็จสิ้นงาน' && (
-                                    <button onClick={() => handleUpdateStatus(item, 'อนุมัติแล้ว', document.getElementById(`driver-${item.id}`).value, document.getElementById(`vehicle-${item.id}`).value)} className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-[11px] font-bold shadow-sm hover:bg-emerald-700 transition">
+                                  {/* ซ่อนปุ่มอนุมัติทันทีถ้าอนุมัติแล้ว */}
+                                  {item.status !== 'อนุมัติแล้ว' && item.status !== 'เสร็จสิ้นงาน' && (
+                                    <button onClick={() => handleUpdateStatus(item, 'อนุมัติแล้ว', document.getElementById(`driver-${item.id}`).value, document.getElementById(`vehicle-${item.id}`).value)} className="px-3.5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-black shadow-sm hover:bg-emerald-700 transition">
                                       อนุมัติ
                                     </button>
                                   )}
-                                  <button onClick={() => handleAdminDelete(item.id)} className="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg text-[11px] font-bold transition">
+                                  <button onClick={() => handleAdminDelete(item.id)} className="px-3.5 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-black transition">
                                     ลบ
                                   </button>
                                 </div>
@@ -677,42 +674,49 @@ export default function App() {
 
                 {adminTab === 'fleet' && (
                   <div className="space-y-6">
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8">
-                      <h2 className="text-base font-bold text-slate-800 mb-1">เพิ่มยานพาหนะเข้าสู่กองยาน (Fleet)</h2>
-                      <p className="text-xs text-slate-500 mb-6">ลงทะเบียนรถยนต์ส่วนกลางใหม่พร้อมเลขไมล์เริ่มต้น</p>
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                      <h2 className="text-base font-black text-slate-800 mb-1">เพิ่มยานพาหนะเข้าสู่กองยาน (Fleet)</h2>
+                      <p className="text-xs font-bold text-slate-500 mb-6">ลงทะเบียนรถยนต์ส่วนกลางใหม่พร้อมเลขไมล์เริ่มต้นและสถานะ</p>
                       <form onSubmit={handleAddVehicle} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                           <div>
-                            <label className="text-xs font-semibold text-slate-600 block mb-1">เลขทะเบียนรถ</label>
-                            <input type="text" required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newVehicle.plate} onChange={(e)=>setNewVehicle({...newVehicle, plate: e.target.value})} />
+                            <label className="text-xs font-black text-slate-700 block mb-1">เลขทะเบียนรถ</label>
+                            <input type="text" required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newVehicle.plate} onChange={(e)=>setNewVehicle({...newVehicle, plate: e.target.value})} />
                           </div>
                           <div>
-                            <label className="text-xs font-semibold text-slate-600 block mb-1">ประเภทรถยนต์</label>
-                            <select className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newVehicle.type} onChange={(e)=>setNewVehicle({...newVehicle, type: e.target.value})}>
+                            <label className="text-xs font-black text-slate-700 block mb-1">ประเภทรถยนต์</label>
+                            <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newVehicle.type} onChange={(e)=>setNewVehicle({...newVehicle, type: e.target.value})}>
                               <option>รถตู้ (12 ที่นั่ง)</option>
                               <option>รถเก๋ง (4 ที่นั่ง)</option>
                               <option>รถกระบะ</option>
                             </select>
                           </div>
                           <div>
-                            <label className="text-xs font-semibold text-slate-600 block mb-1">เลขไมล์เริ่มต้น (กม.)</label>
-                            <input type="number" required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newVehicle.mileage} onChange={(e)=>setNewVehicle({...newVehicle, mileage: e.target.value})} />
+                            <label className="text-xs font-black text-slate-700 block mb-1">สถานะรถ</label>
+                            <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newVehicle.status} onChange={(e)=>setNewVehicle({...newVehicle, status: e.target.value})}>
+                              <option value="พร้อมใช้งาน">พร้อมใช้งาน</option>
+                              <option value="ไม่พร้อมใช้งาน">ไม่พร้อมใช้งาน (ซ่อมบำรุง)</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-xs font-black text-slate-700 block mb-1">เลขไมล์เริ่มต้น (กม.)</label>
+                            <input type="number" required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800 focus:bg-white focus:border-indigo-600 outline-none transition" value={newVehicle.mileage} onChange={(e)=>setNewVehicle({...newVehicle, mileage: e.target.value})} />
                           </div>
                         </div>
-                        <button type="submit" className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-semibold text-xs shadow-md shadow-indigo-100 hover:bg-indigo-700 transition">
+                        <button type="submit" className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-black text-xs shadow-md shadow-indigo-100 hover:bg-indigo-700 transition">
                           บันทึกข้อมูลรถใหม่
                         </button>
                       </form>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                       <div className="px-6 py-4 bg-slate-50 border-b border-slate-100">
-                        <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">รายการยานพาหนะทั้งหมดในสังกัด</h3>
+                        <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">รายการยานพาหนะทั้งหมดในสังกัด</h3>
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                           <thead>
-                            <tr className="bg-slate-50/50 text-slate-500 font-semibold text-[11px] uppercase border-b border-slate-100">
+                            <tr className="bg-slate-50/50 text-slate-600 font-black text-xs uppercase border-b border-slate-100">
                               <th className="px-6 py-3">เลขทะเบียนรถ</th>
                               <th className="px-6 py-3">ประเภท</th>
                               <th className="px-6 py-3 text-center">สถานะ</th>
@@ -720,19 +724,20 @@ export default function App() {
                               <th className="px-6 py-3 text-center">จัดการ</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100 text-xs font-medium">
+                          <tbody className="divide-y divide-slate-100 text-xs font-black">
                             {vehicleList.map(v => (
-                              <tr key={v.id} className="hover:bg-slate-50/60 transition">
-                                <td className="px-6 py-3.5 font-bold text-slate-800 text-sm">{v.plate}</td>
-                                <td className="px-6 py-3.5 text-slate-600">{v.type}</td>
-                                <td className="px-6 py-3.5 text-center">
-                                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${v.status === 'พร้อมใช้งาน' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
-                                    {v.status}
-                                  </span>
+                              <tr key={v.id} className="hover:bg-slate-50 transition">
+                                <td className="px-6 py-4 text-slate-900 text-sm">{v.plate}</td>
+                                <td className="px-6 py-4 text-slate-700">{v.type}</td>
+                                <td className="px-6 py-4 text-center">
+                                  <select className={`px-3 py-1.5 rounded-lg text-xs font-black outline-none border ${v.status === 'พร้อมใช้งาน' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'}`} value={v.status || 'พร้อมใช้งาน'} onChange={(e) => handleVehicleStatusChange(v.id, e.target.value)}>
+                                    <option value="พร้อมใช้งาน">🟢 พร้อมใช้งาน</option>
+                                    <option value="ไม่พร้อมใช้งาน">🔴 ไม่พร้อมใช้งาน</option>
+                                  </select>
                                 </td>
-                                <td className="px-6 py-3.5 text-right font-bold text-indigo-600">{Number(v.mileage || 0).toLocaleString()} กม.</td>
-                                <td className="px-6 py-3.5 text-center">
-                                  <button onClick={() => handleDeleteVehicle(v.id, v.plate)} className="px-3 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg text-[11px] font-bold transition">ลบ</button>
+                                <td className="px-6 py-4 text-right text-indigo-700">{Number(v.mileage || 0).toLocaleString()} กม.</td>
+                                <td className="px-6 py-4 text-center">
+                                  <button onClick={() => handleDeleteVehicle(v.id, v.plate)} className="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg text-xs font-black transition">ลบ</button>
                                 </td>
                               </tr>
                             ))}
@@ -746,33 +751,33 @@ export default function App() {
                 {adminTab === 'reports' && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">คำขอจองรถทั้งหมด</p>
-                        <p className="text-4xl font-extrabold text-slate-800 mt-4">{bookingList.length} <span className="text-sm font-semibold text-slate-400">รายการ</span></p>
+                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-wider">คำขอจองรถทั้งหมด</p>
+                        <p className="text-4xl font-black text-slate-900 mt-4">{bookingList.length} <span className="text-sm font-black text-slate-400">รายการ</span></p>
                       </div>
-                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">งบประมาณค่าน้ำมันสะสม</p>
-                        <p className="text-4xl font-extrabold text-emerald-600 mt-4">{bookingList.reduce((sum, b) => sum + (Number(b.fuelCost) || 0), 0).toLocaleString()} <span className="text-sm font-semibold text-slate-400">บาท</span></p>
+                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-wider">งบประมาณค่าน้ำมันสะสม</p>
+                        <p className="text-4xl font-black text-emerald-700 mt-4">{bookingList.reduce((sum, b) => sum + (Number(b.fuelCost) || 0), 0).toLocaleString()} <span className="text-sm font-black text-slate-400">บาท</span></p>
                       </div>
-                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">ยานพาหนะในสังกัด</p>
-                        <p className="text-4xl font-extrabold text-indigo-600 mt-4">{vehicleList.length} <span className="text-sm font-semibold text-slate-400">คัน</span></p>
+                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-wider">ยานพาหนะในสังกัด</p>
+                        <p className="text-4xl font-black text-indigo-700 mt-4">{vehicleList.length} <span className="text-sm font-black text-slate-400">คัน</span></p>
                       </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8">
-                      <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-6">สถิติการใช้งานแยกตามประเภทรถยนต์</h3>
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                      <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider mb-6">สถิติการใช้งานแยกตามประเภทรถยนต์</h3>
                       <div className="space-y-5">
                         {['รถตู้ (12 ที่นั่ง)', 'รถเก๋ง (4 ที่นั่ง)', 'รถกระบะ'].map(type => {
                           const count = bookingList.filter(b => b.vehicleType === type).length;
                           const percent = bookingList.length > 0 ? (count / bookingList.length) * 100 : 0;
                           return (
                             <div key={type} className="space-y-2">
-                              <div className="flex justify-between text-xs font-semibold text-slate-700">
+                              <div className="flex justify-between text-xs font-black text-slate-800">
                                 <span>{type}</span>
-                                <span className="text-indigo-600">{count} ครั้ง ({percent.toFixed(0)}%)</span>
+                                <span className="text-indigo-700">{count} ครั้ง ({percent.toFixed(0)}%)</span>
                               </div>
-                              <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                              <div className="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
                                 <div className="bg-indigo-600 h-full rounded-full transition-all duration-700" style={{ width: `${percent}%` }}></div>
                               </div>
                             </div>
