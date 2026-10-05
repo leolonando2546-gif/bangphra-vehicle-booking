@@ -48,7 +48,7 @@ export default function App() {
   });
 
   const [newVehicle, setNewVehicle] = useState({
-    plate: '', type: 'รถตู้', status: 'พร้อมใช้งาน', mileage: '', taxDate: '', insuranceDate: ''
+    plate: '', type: 'รถตู้ (12 ที่นั่ง)', status: 'พร้อมใช้งาน', mileage: '', taxDate: '', insuranceDate: ''
   });
 
   const [formData, setFormData] = useState({
@@ -183,6 +183,15 @@ export default function App() {
     }
   };
 
+  const handleDeleteVehicle = async (id, plate) => {
+    if (window.confirm(`ต้องการลบรถทะเบียน ${plate} ออกจากระบบถาวรใช่หรือไม่?`)) {
+      try {
+        await remove(ref(db, `vehicles/${id}`));
+        alert("ลบข้อมูลรถสำเร็จ");
+      } catch (error) { alert(error.message); }
+    }
+  };
+
   const handleEditBooking = (item) => {
     setFormData({
       purpose: item.purpose, destination: item.destination, date: item.date, time: item.time, vehicleType: item.vehicleType
@@ -214,10 +223,16 @@ export default function App() {
 
   const handleAddVehicle = async (e) => {
     e.preventDefault();
+    if (!newVehicle.plate || !newVehicle.mileage) {
+      return alert("กรุณากรอกข้อมูลเลขทะเบียนและเลขไมล์เริ่มต้นให้ครบถ้วน");
+    }
     try {
-      await push(ref(db, 'vehicles'), newVehicle);
+      await push(ref(db, 'vehicles'), {
+        ...newVehicle,
+        mileage: Number(newVehicle.mileage)
+      });
       alert('เพิ่มข้อมูลรถเข้าระบบสำเร็จ!');
-      setNewVehicle({ plate: '', type: 'รถตู้', status: 'พร้อมใช้งาน', mileage: '', taxDate: '', insuranceDate: '' });
+      setNewVehicle({ plate: '', type: 'รถตู้ (12 ที่นั่ง)', status: 'พร้อมใช้งาน', mileage: '', taxDate: '', insuranceDate: '' });
     } catch (error) { alert(error.message); }
   };
 
@@ -528,31 +543,68 @@ export default function App() {
               )}
 
               {adminTab === 'fleet' && (
-                 <div className="space-y-8">
-                 <div className="bg-white p-8 rounded-3xl shadow-xl border-4 border-gray-100">
-                   <h2 className="text-2xl font-black mb-6 text-black border-b pb-4">🚗 เพิ่มยานพาหนะใหม่เข้า Fleet</h2>
-                   <form onSubmit={handleAddVehicle} className="grid grid-cols-1 md:grid-cols-4 gap-4 font-black">
-                     <input type="text" required className="border-2 p-4 rounded-xl focus:border-blue-700 outline-none" value={newVehicle.plate} onChange={(e)=>setNewVehicle({...newVehicle, plate: e.target.value})} />
-                     <select className="border-2 p-4 rounded-xl bg-white" value={newVehicle.type} onChange={(e)=>setNewVehicle({...newVehicle, type: e.target.value})}>
-                       <option>รถตู้</option><option>รถเก๋ง</option><option>รถกระบะ</option>
-                     </select>
-                     <input type="number" className="border-2 p-4 rounded-xl" value={newVehicle.mileage} onChange={(e)=>setNewVehicle({...newVehicle, mileage: e.target.value})} />
-                     <button type="submit" className="bg-blue-700 text-white p-4 rounded-xl font-black shadow-xl hover:bg-blue-800 transition uppercase">บันทึกรถ</button>
-                   </form>
-                 </div>
-                 <div className="bg-white rounded-3xl shadow-xl overflow-hidden border-2 border-gray-100">
-                   <table className="w-full text-left font-black text-black">
-                     <thead className="bg-gray-800 text-white">
-                       <tr><th className="p-6">ทะเบียน</th><th className="p-6">ประเภท</th><th className="p-6">สถานะ</th><th className="p-6 text-right">ไมล์ล่าสุด (กม.)</th></tr>
-                     </thead>
-                     <tbody className="divide-y divide-gray-100">
-                       {vehicleList.map(v => (
-                         <tr key={v.id} className="border-b font-black hover:bg-gray-50 transition-colors"><td className="p-6">{v.plate}</td><td className="p-6">{v.type}</td><td className="p-6 text-green-600">{v.status}</td><td className="p-6 text-right text-blue-700 text-xl font-black">{Number(v.mileage).toLocaleString()}</td></tr>
-                       ))}
-                     </tbody>
-                   </table>
-                 </div>
-               </div>
+                <div className="space-y-8">
+                  <div className="bg-white p-8 rounded-3xl shadow-xl border-4 border-blue-100">
+                    <h2 className="text-2xl font-black mb-6 text-black border-b pb-4">🚗 เพิ่มยานพาหนะใหม่เข้า Fleet</h2>
+                    <form onSubmit={handleAddVehicle} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-xs font-black text-gray-500">เลขทะเบียนรถ</label>
+                          <input type="text" required className="w-full border-2 p-3 rounded-xl font-bold bg-gray-50 focus:border-blue-500 outline-none" value={newVehicle.plate} onChange={(e)=>setNewVehicle({...newVehicle, plate: e.target.value})} />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-black text-gray-500">ประเภทรถยนต์</label>
+                          <select className="w-full border-2 p-3 rounded-xl font-bold bg-white focus:border-blue-500 outline-none" value={newVehicle.type} onChange={(e)=>setNewVehicle({...newVehicle, type: e.target.value})}>
+                            <option>รถตู้ (12 ที่นั่ง)</option>
+                            <option>รถเก๋ง (4 ที่นั่ง)</option>
+                            <option>รถกระบะ</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-black text-gray-500">เลขไมล์เริ่มต้น (กม.)</label>
+                          <input type="number" required className="w-full border-2 p-3 rounded-xl font-bold bg-gray-50 focus:border-blue-500 outline-none" value={newVehicle.mileage} onChange={(e)=>setNewVehicle({...newVehicle, mileage: e.target.value})} />
+                        </div>
+                      </div>
+                      <button type="submit" className="w-full bg-blue-700 text-white py-4 rounded-xl font-black shadow-xl hover:bg-blue-800 transition uppercase tracking-wider">💾 บันทึกเพิ่มรถใหม่</button>
+                    </form>
+                  </div>
+
+                  <div className="bg-white rounded-3xl shadow-xl overflow-hidden border-2 border-gray-100">
+                    <div className="p-8 bg-blue-700 flex justify-between items-center">
+                      <h2 className="text-2xl font-black text-white uppercase tracking-wider">📋 รายการยานพาหนะทั้งหมดในระบบ</h2>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead className="bg-blue-50 border-b-2 border-blue-100">
+                          <tr className="text-black font-black uppercase text-xs text-center">
+                            <th className="p-4">ทะเบียนรถ</th>
+                            <th className="p-4">ประเภท</th>
+                            <th className="p-4">สถานะ</th>
+                            <th className="p-4">ไมล์สะสมล่าสุด (กม.)</th>
+                            <th className="p-4">จัดการ</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 text-center font-black">
+                          {vehicleList.map(v => (
+                            <tr key={v.id} className="hover:bg-blue-50 transition">
+                              <td className="p-4 text-black text-lg">{v.plate}</td>
+                              <td className="p-4 text-sm text-gray-700">{v.type}</td>
+                              <td className="p-4">
+                                <span className={`px-3 py-1 rounded-lg text-xs font-black text-white ${v.status === 'พร้อมใช้งาน' ? 'bg-green-600' : 'bg-orange-500'}`}>
+                                  {v.status}
+                                </span>
+                              </td>
+                              <td className="p-4 text-blue-700 text-lg">{Number(v.mileage || 0).toLocaleString()} กม.</td>
+                              <td className="p-4">
+                                <button onClick={() => handleDeleteVehicle(v.id, v.plate)} className="bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-black shadow hover:bg-red-700 transition">🗑️ ลบ</button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
               )}
 
               {adminTab === 'reports' && (
@@ -598,9 +650,6 @@ export default function App() {
                       );
                     })}
                   </div>
-                  <button onClick={() => window.print()} className="mt-12 w-full bg-black text-white py-6 rounded-3xl font-black shadow-2xl hover:bg-blue-900 transition-all text-xl uppercase tracking-widest border-b-8 border-gray-700 active:border-b-0">
-                    🖨️ พิมพ์รายงานสรุปโครงการ (PDF/PRINT)
-                  </button>
                 </div>
               </div>
               )}
