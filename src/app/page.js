@@ -117,35 +117,40 @@ export default function App() {
 
   const handleLogout = () => signOut(auth);
 
-  // --- ฟังก์ชันแอดมินสร้างบัญชีผู้ใช้ใหม่ (ป้องกันแอดมินเด้งหลุด) ---
+  // --- ฟังก์ชันแอดมินสร้างบัญชีผู้ใช้ใหม่ (ปรับปรุงใหม่ให้บันทึกชัวร์ 100%) ---
   const handleCreateNewUser = async (e) => {
     e.preventDefault();
     if (window.confirm(`ต้องการสร้างบัญชี ${newUserAccount.email} ใช่หรือไม่?`)) {
       try {
-        // ใช้ Secondary App เพื่อไม่ให้แอดมินถูก Log out
+        // 1. สร้างบัญชีใน Firebase Auth โดยใช้ Secondary App เพื่อไม่ให้แอดมินหลุด
         const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
         const secondaryAuth = getAuth(secondaryApp);
         
-        // สร้างบัญชีใน Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(secondaryAuth, newUserAccount.email, newUserAccount.password);
+        const userCredential = await createUserWithEmailAndPassword(
+          secondaryAuth, 
+          newUserAccount.email, 
+          newUserAccount.password
+        );
         
-        // บันทึกข้อมูลลงใน Realtime Database
-        await set(ref(db, `users/${userCredential.user.uid}`), {
-          uid: userCredential.user.uid,
+        const newUid = userCredential.user.uid;
+
+        // 2. ปิดระบบ Secondary Auth เพื่อเคลียร์แรม
+        await secondaryAuth.signOut();
+
+        // 3. บันทึกข้อมูลลงใน Realtime Database ทันทีโดยใช้ UID ที่ได้มา
+        await set(ref(db, `users/${newUid}`), {
+          uid: newUid,
           email: newUserAccount.email,
           name: newUserAccount.name,
           department: newUserAccount.department || '-',
           phone: newUserAccount.phone || '-',
           role: newUserAccount.role
         });
-
-        // ออกจากระบบ Secondary App
-        await secondaryAuth.signOut();
         
-        alert("บันทึกผู้ใช้งานใหม่สำเร็จ!");
+        alert("บันทึกผู้ใช้งานใหม่และสร้างข้อมูลในระบบสำเร็จ!");
         setNewUserAccount({ email: '', password: '', name: '', department: '', phone: '', role: 'user' });
       } catch (error) { 
-        alert("เกิดข้อผิดพลาด: " + error.message); 
+        alert("เกิดข้อผิดพลาดในการสร้างบัญชี: " + error.message); 
       }
     }
   };
